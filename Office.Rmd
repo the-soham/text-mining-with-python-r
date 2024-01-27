@@ -30,7 +30,8 @@ word_counts <- office %>%
   count(word, sort = TRUE)%>%
   head(20)%>%
   mutate(word = reorder(word, n))
- 
+
+
 
 # Create a diverging color scale
 color_scale <- scale_fill_viridis_c(option = "plasma", direction = -1,guide = "none")
@@ -44,4 +45,36 @@ ggplot(word_counts, aes(x = n, y = word, fill = n)) +
   color_scale
 
 ```
+```{r}
+
+maichael_dwight = office%>%
+                  filter(character %in% c("Michael", "Dwight"))%>%
+                  unnest_tokens(word, text) %>%
+                  anti_join(stop_words)%>%
+                  group_by(character)%>%
+                  count(word, sort = TRUE)%>%
+                 ungroup()
+
+maichael_dwight %>%
+          group_by(character)%>%
+          top_n(15)%>%
+          ungroup%>%
+          mutate(character = as.factor(character),
+                 word = reorder_within(word, n, character))%>%
+           ggplot(aes(word, n, fill = character)) +
+    geom_col(show.legend = FALSE) +
+    facet_wrap(~character, scales = "free_y") +
+    coord_flip() +
+    scale_x_reordered() +
+    scale_y_continuous(expand = c(0,0)) +
+    labs(y = "Number of words",
+         x = NULL,
+         title = "What were the top words used by Michael and Dwight?",
+        )
+
+maichael_dwight
+```
+```{r}
+```
+
 
