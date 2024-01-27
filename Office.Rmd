@@ -1,0 +1,47 @@
+---
+title: "Text Mining The Office Transcripts"
+author: "Soham"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+What are the top20 words used in The Office
+
+```{r}
+library(schrute)
+library(dplyr)
+library(tidyr)
+library(tidytext)
+library(ggplot2)
+
+
+office = schrute::theoffice
+
+
+word_counts <- office %>%
+  unnest_tokens(word, text) %>%
+  anti_join(stop_words)%>%
+  filter(!word %in% tolower(character))%>%
+  count(word, sort = TRUE)%>%
+  head(20)%>%
+  mutate(word = reorder(word, n))
+ 
+
+# Create a diverging color scale
+color_scale <- scale_fill_viridis_c(option = "plasma", direction = -1,guide = "none")
+
+# Plot the horizontal bar plot with a diverging color scale
+ggplot(word_counts, aes(x = n, y = word, fill = n)) +
+  geom_col() +
+  labs(x = "Word Frequency", y = NULL, title = "Top 20 Words in The Office") +
+  theme_minimal() +
+  theme(axis.text.y = element_text(size = 8)) +
+  color_scale
+
+```
+
